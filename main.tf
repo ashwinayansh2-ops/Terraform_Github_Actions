@@ -23,7 +23,7 @@ resource "aws_instance" "ec2_instance_1" {
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.public_subnet_1a.id
   iam_instance_profile = aws_iam_instance_profile.ec2_ssm_profile.name
-  key_name = "Dynatrace.pem"
+  key_name = "Dynatrace"
   tags = {
     Name = "CICD_EC2_Instance_1"
   } 
@@ -35,7 +35,7 @@ resource "aws_instance" "ec2_instance_2" {
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.public_subnet_1b.id
   iam_instance_profile = aws_iam_instance_profile.ec2_ssm_profile.name
-  key_name = "Dynatrace.pem"
+  key_name = "Dynatrace"
   tags = {
     Name = "CICD_EC2_Instance_2"
   } 
