@@ -38,7 +38,7 @@ resource "aws_iam_role_policy" "read_dynatrace_token" {
       {
         Effect   = "Allow"
         Action   = "secretsmanager:GetSecretValue"
-        Resource = data.aws_secretsmanager_secret.dynatrace_paas_token.arn
+        Resource = data.aws_secretsmanager_secret.dynatrace_secret.arn
       }
     ]
   })
