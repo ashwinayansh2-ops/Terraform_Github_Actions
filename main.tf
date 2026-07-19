@@ -24,6 +24,7 @@ resource "aws_instance" "ec2_instance_1" {
   subnet_id     = aws_subnet.public_subnet_1a.id
   iam_instance_profile = aws_iam_instance_profile.ec2_ssm_profile.name
   key_name = "Dynatrace"
+  user_data = file("${path.module}/userdata.sh")
   tags = {
     Name = "CICD_EC2_Instance_1"
   } 
@@ -36,6 +37,7 @@ resource "aws_instance" "ec2_instance_2" {
   subnet_id     = aws_subnet.public_subnet_1b.id
   iam_instance_profile = aws_iam_instance_profile.ec2_ssm_profile.name
   key_name = "Dynatrace"
+  user_data = file("${path.module}/userdata.sh")
   tags = {
     Name = "CICD_EC2_Instance_2"
   } 
@@ -68,3 +70,4 @@ resource "aws_route_table_association" "public_subnet_1b_association" {
   subnet_id      = aws_subnet.public_subnet_1b.id
   route_table_id = aws_route_table.public_rt.id
 }
+
