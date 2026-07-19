@@ -1,5 +1,5 @@
 #create aws_secretsmanager_secret 
-resource "aws_secretsmanager_secret" "dynatrace_secret" {
+data "aws_secretsmanager_secret" "dynatrace_secret" {
   name = "dynatrace-paas-token"
   description = "Dynatrace API Token"
 }
