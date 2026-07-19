@@ -35,5 +35,4 @@ resource "aws_instance" "ec2_instance_2" {
   tags = {
     Name = "CICD_EC2_Instance_2"
   } 
-  
 }
