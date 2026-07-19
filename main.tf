@@ -40,3 +40,31 @@ resource "aws_instance" "ec2_instance_2" {
     Name = "CICD_EC2_Instance_2"
   } 
 }
+
+#create internet gateway
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+  tags = {
+    "Name" = "IGW_CICD"
+  }
+}
+
+#associate the public subnets with the route table
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+}
+
+#associate ig to the public subnets
+resource "aws_route_table_association" "public_subnet_1a_association" {
+  subnet_id      = aws_subnet.public_subnet_1a.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
+resource "aws_route_table_association" "public_subnet_1b_association" {
+  subnet_id      = aws_subnet.public_subnet_1b.id
+  route_table_id = aws_route_table.public_rt.id
+}
