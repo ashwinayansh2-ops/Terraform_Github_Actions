@@ -18,6 +18,8 @@ resource "aws_subnet" "public_subnet_1b" {
   availability_zone = "us-east-1b"
 }
 
+
+
 /*
 resource "aws_instance" "ec2_instance_1" {
   ami           = "ami-0c02fb55956c7d316"
@@ -43,34 +45,6 @@ resource "aws_instance" "ec2_instance_2" {
   tags = {
     Name = "CICD_EC2_Instance_2"
   } 
-}
-
-#create internet gateway
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.vpc.id
-  tags = {
-    "Name" = "IGW_CICD"
-  }
-}
-
-#associate the public subnets with the route table
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.vpc.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-}
-
-#associate ig to the public subnets
-resource "aws_route_table_association" "public_subnet_1a_association" {
-  subnet_id      = aws_subnet.public_subnet_1a.id
-  route_table_id = aws_route_table.public_rt.id
-}
-
-resource "aws_route_table_association" "public_subnet_1b_association" {
-  subnet_id      = aws_subnet.public_subnet_1b.id
-  route_table_id = aws_route_table.public_rt.id
 }
 
 
@@ -240,3 +214,47 @@ resource "aws_lb_listener" "http" {
 }
 
 
+resource "aws_eip" "nat" {
+  domain = "vpc"
+
+  tags = {
+    Name = "nat-eip"
+  }
+}
+
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat.id
+
+  subnet_id = aws_subnet.public_subnet_1.id
+
+  depends_on = [
+    aws_internet_gateway.igw
+  ]
+
+  tags = {
+    Name = "main-nat"
+  }
+}
+
+resource "aws_route" "private_default" {
+
+  route_table_id = aws_route_table.private.id
+
+  destination_cidr_block = "0.0.0.0/0"
+
+  nat_gateway_id = aws_nat_gateway.nat.id
+}
+
+resource "aws_route_table_association" "private1" {
+
+  subnet_id = aws_subnet.private_subnet_1.id
+
+  route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table_association" "private2" {
+
+  subnet_id = aws_subnet.private_subnet_2.id
+
+  route_table_id = aws_route_table.private.id
+}
