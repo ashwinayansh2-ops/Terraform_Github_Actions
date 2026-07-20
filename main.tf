@@ -147,3 +147,31 @@ resource "aws_security_group" "ec2_sg" {
     Name = "EC2-SG"
   }
 }
+
+resource "aws_autoscaling_group" "dynatrace_asg" {
+
+  name = "dynatrace-asg"
+
+  desired_capacity = 2
+  min_size         = 2
+  max_size         = 4
+
+  vpc_zone_identifier = [
+    aws_subnet.public_subnet_1a.id,
+    aws_subnet.public_subnet_1b.id
+  ]
+
+  launch_template {
+    id      = aws_launch_template.dynatrace_lt.id
+    version = "$Latest"
+  }
+
+  health_check_type         = "EC2"
+  health_check_grace_period = 300
+
+  tag {
+    key                 = "Name"
+    value               = "Dynatrace-ASG-Instance"
+    propagate_at_launch = true
+  }
+}
