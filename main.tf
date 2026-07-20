@@ -18,6 +18,7 @@ resource "aws_subnet" "public_subnet_1b" {
   availability_zone = "us-east-1b"
 }
 
+/*
 resource "aws_instance" "ec2_instance_1" {
   ami           = "ami-0c02fb55956c7d316"
   instance_type = "t2.micro"
@@ -30,6 +31,7 @@ resource "aws_instance" "ec2_instance_1" {
   } 
   
 }
+*/
 
 resource "aws_instance" "ec2_instance_2" {
   ami           = "ami-0c02fb55956c7d316"
@@ -71,3 +73,77 @@ resource "aws_route_table_association" "public_subnet_1b_association" {
   route_table_id = aws_route_table.public_rt.id
 }
 
+
+resource "aws_launch_template" "dynatrace_lt" {
+
+  name_prefix   = "dynatrace-lt-"
+
+  image_id      = "ami-0c02fb55956c7d316"
+  instance_type = "t2.micro"
+
+  key_name = "Dynatrace"
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_ssm_profile.name
+  }
+
+  vpc_security_group_ids = [
+    aws_security_group.ec2_sg.id
+  ]
+
+  user_data = base64encode(
+    file("${path.module}/userdata.sh")
+  )
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = "Dynatrace-ASG-Instance"
+    }
+  }
+
+  update_default_version = true
+}
+
+resource "aws_security_group" "ec2_sg" {
+  name        = "dynatrace-ec2-sg"
+  description = "Security Group for EC2"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
+  }
+
+  tags = {
+    Name = "EC2-SG"
+  }
+}
